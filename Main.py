@@ -6,12 +6,19 @@ from PyQt5.QtCore import *
 
 
 class Form(QWidget):
+   
 
     def __init__(self):
+        
+  
         super().__init__()
         self.SetScreen()
-
+       
         self.GetItems()
+        self.say_altciz=0 
+        self.say_italic=0 
+        self.say_bold=0 
+
 
     def SetScreen(self):
         self.setWindowTitle("Işılgan Metin Editör")
@@ -28,6 +35,8 @@ class Form(QWidget):
         #rich
         self.richText = QTextEdit()
         self.richText.textChanged.connect(self.richText_changed)
+        self.richText.setStyleSheet("background-color:#7E7474") 
+        
         #rich
 
         #save
@@ -95,21 +104,32 @@ class Form(QWidget):
         self.ortala=QPushButton()
         self.ortala.setFixedSize(30,40)
         self.ortala.setIcon(QIcon("iconlar/center"))
+        self.ortala.clicked.connect(self.yaziyi_ortala)
         self.sağyasla=QPushButton()
         self.sağyasla.setIcon(QIcon("iconlar/right.png"))
         self.sağyasla.setFixedSize(30,40)
+        self.sağyasla.clicked.connect(self.yaziyi_sagayasla)
         self.solaYasla=QPushButton()
         self.solaYasla.setIcon(QIcon("iconlar/left.png"))
         self.solaYasla.setFixedSize(30,40)
+        self.solaYasla.clicked.connect(self.yaziyi_solayasla)
         self.ikiyanayasla=QPushButton()
         self.ikiyanayasla.setIcon(QIcon("iconlar/justify_align.png"))
         self.ikiyanayasla.setFixedSize(30,40)
+        self.ikiyanayasla.clicked.connect(self.yaziyi_ikiyanayasla)
         self.bold=QPushButton()
         self.bold.setFixedSize(30,40)
         self.bold.setIcon(QIcon("iconlar/Bold.png"))
+        self.bold.clicked.connect(self.bold_yap)
         self.italic=QPushButton()
         self.italic.setIcon(QIcon("iconlar/italic.png"))
         self.italic.setFixedSize(30,40)
+        self.italic.clicked.connect(self.italic_yap)
+        self.altıçizili=QPushButton()
+        self.altıçizili.setIcon(QIcon("iconlar/underline.png"))
+        self.altıçizili.setFixedSize(30,40)
+        self.altıçizili.clicked.connect(self.altiniciz)
+
       
 
         self.layoutHizalama=QGridLayout()
@@ -123,6 +143,9 @@ class Form(QWidget):
         self.layoutBoldİtalic=QGridLayout()
         self.layoutBoldİtalic.addWidget(self.bold,0,0)
         self.layoutBoldİtalic.addWidget(self.italic,1,0)
+        self.layoutBoldİtalic.addWidget(self.altıçizili,2,0)
+
+
 
 
 
@@ -156,6 +179,57 @@ class Form(QWidget):
 
 
         self.setLayout(layout)
+
+
+    def yaziyi_ortala(self):
+        self.richText.setAlignment(Qt.AlignCenter)
+    def yaziyi_sagayasla(self):
+        self.richText.setAlignment(Qt.AlignRight)
+    def yaziyi_solayasla(self):
+        self.richText.setAlignment(Qt.AlignLeft)
+    def yaziyi_ikiyanayasla(self):
+        self.richText.setAlignment(Qt.AlignJustify)               
+    def bold_yap(self):
+        if(self.say_bold%2==0):
+
+
+            self.richText.setFontWeight(QFont.Bold)
+        else:
+
+            self.richText.setFontWeight(QFont.Normal)
+
+        self.say_bold=self.say_bold+1    
+
+        
+        
+    def italic_yap(self):
+        if(self.say_italic%2==0):
+            self.richText.setFontItalic(True)
+        else:
+            self.richText.setFontItalic(False)
+
+        self.say_italic=self.say_italic+1    
+
+        
+       
+    def altiniciz(self):
+
+        if(self.say_altciz%2==0):
+            self.richText.setFontUnderline(True)
+        else:
+            self.richText.setFontUnderline(False)
+
+        self.say_altciz=self.say_altciz+1    
+
+
+
+
+
+      
+        
+        
+       
+        
     def richText_changed(self):
         text = self.richText.toPlainText()
       
@@ -261,7 +335,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
                        
     form1 = Form()
-                           
     form1.show()
+       
     sys.exit(app.exec_())
 app()
