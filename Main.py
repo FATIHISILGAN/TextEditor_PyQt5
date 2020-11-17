@@ -5,22 +5,17 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 
-
 class Form(QWidget):
 
     def __init__(self):
 
         super().__init__()
-        self.SetScreen()
 
         self.GetItems()
         self.say_altciz = 0
         self.say_italic = 0
         self.say_bold = 0
-        
-        self.spiner.setValue(15)
-        self.richText.setFontPointSize(15)
-        
+        self.SetScreen()
 
     def SetScreen(self):
         self.setWindowTitle("Işılgan Metin Editör")
@@ -29,6 +24,10 @@ class Form(QWidget):
         with open(sshFile, "r") as fh:
 
             self.setStyleSheet(fh.read())
+
+        self.spiner.setValue(15)
+
+        self.richText.setFontPointSize(self.spiner.value())
 
     def GetItems(self):
         layout = QGridLayout()
@@ -44,14 +43,14 @@ class Form(QWidget):
         save.setIcon(QIcon("iconlar/save.png"))
 
         save.clicked.connect(self.save_clicked)
-        save.setFixedSize(30, 20)
+        save.setFixedSize(80, 20)
         #save
 
         #opentext
         opentext = QPushButton()
         opentext.setIcon(QIcon("iconlar/open.png"))
         opentext.clicked.connect(self.opentext_clicked)
-        opentext.setFixedSize(30, 20)
+        opentext.setFixedSize(80, 20)
         #opentext
 
         #fontSet
@@ -88,9 +87,9 @@ class Form(QWidget):
         self.findWord.setIcon(QIcon("iconlar/find.png"))
         self.findWord.clicked.connect(self.findWord_clicked)
         self.findWord.setFixedSize(30, 20)
+
         #FindWord
-         
-       
+
         #hizalamaveBoldİtalicMenuOpen
         self.widg1 = QWidget()
         self.widg2 = QWidget()
@@ -99,32 +98,32 @@ class Form(QWidget):
         self.toolBox.setFixedSize(150, 300)
 
         self.ortala = QPushButton()
-        self.ortala.setFixedSize(20, 40)
+        self.ortala.setFixedSize(30, 40)
         self.ortala.setIcon(QIcon("iconlar/center"))
         self.ortala.clicked.connect(self.yaziyi_ortala)
         self.sağyasla = QPushButton()
         self.sağyasla.setIcon(QIcon("iconlar/right.png"))
-        self.sağyasla.setFixedSize(20, 40)
+        self.sağyasla.setFixedSize(30, 40)
         self.sağyasla.clicked.connect(self.yaziyi_sagayasla)
         self.solaYasla = QPushButton()
         self.solaYasla.setIcon(QIcon("iconlar/left.png"))
-        self.solaYasla.setFixedSize(20, 40)
+        self.solaYasla.setFixedSize(30, 40)
         self.solaYasla.clicked.connect(self.yaziyi_solayasla)
         self.ikiyanayasla = QPushButton()
         self.ikiyanayasla.setIcon(QIcon("iconlar/justify_align.png"))
-        self.ikiyanayasla.setFixedSize(20, 40)
+        self.ikiyanayasla.setFixedSize(30, 40)
         self.ikiyanayasla.clicked.connect(self.yaziyi_ikiyanayasla)
         self.bold = QPushButton()
-        self.bold.setFixedSize(20, 40)
+        self.bold.setFixedSize(30, 40)
         self.bold.setIcon(QIcon("iconlar/Bold.png"))
         self.bold.clicked.connect(self.bold_yap)
         self.italic = QPushButton()
         self.italic.setIcon(QIcon("iconlar/italic.png"))
-        self.italic.setFixedSize(20, 40)
+        self.italic.setFixedSize(30, 40)
         self.italic.clicked.connect(self.italic_yap)
         self.altıçizili = QPushButton()
         self.altıçizili.setIcon(QIcon("iconlar/underline.png"))
-        self.altıçizili.setFixedSize(20, 40)
+        self.altıçizili.setFixedSize(30, 40)
         self.altıçizili.clicked.connect(self.altiniciz)
 
         self.layoutHizalama = QGridLayout()
@@ -156,7 +155,7 @@ class Form(QWidget):
         layout.addWidget(self.toolBox, 10, 1)
 
         self.setLayout(layout)
-     
+
     def yaziyi_ortala(self):
         self.richText.setAlignment(Qt.AlignCenter)
 
@@ -197,7 +196,6 @@ class Form(QWidget):
         self.say_altciz = self.say_altciz+1
 
     def richText_changed(self):
-      
         text = self.richText.toPlainText()
 
         temp = 0
@@ -206,29 +204,46 @@ class Form(QWidget):
 
             temp = temp+1
 
-        self.setWindowTitle(str(temp))
+        self.setWindowTitle("kelime sayısı:"+str(temp))
+        #burası henüz tam doğru çalışmıyor
 
     def findWord_clicked(self):
 
         aranan, onay = QInputDialog.getText(
             self, " aranan kelimeyi giriniz:", "kelime bul")
+        
+        if not aranan:
+            return
+        col = QColorDialog.getColor(self.richText.textColor(), self)
+        if not col.isValid():
+            return
+        fmt = QTextCharFormat()
+        fmt.setForeground(col)
+        print("\nfmt.setForeground(col)", col)
+        fmt.setFontPointSize(14)     
 
-        text = self.richText.toPlainText()
+        self.richText.moveCursor(QTextCursor.Start)
 
-        count = 0
-        temp = 0
+        self.countWords = 0
+        while self.richText.find(aranan, QTextDocument.FindWholeWords):      # Find whole words
+            self.mergeFormatOnWordOrSelection(fmt)
+            self.countWords += 1
 
-        for line in text.split(" "):
+        QMessageBox.information(self, 
+            "Information", 
+            
+             "word->`{text}` {countWords}` adet bulundu".format(text=aranan, countWords=self.countWords)
+        )
+        
 
-            temp = temp+1
+        
+    def mergeFormatOnWordOrSelection(self, format):
+        cursor = self.richText.textCursor()
+        if not cursor.hasSelection():
+            cursor.select(QTextCursor.WordUnderCursor)
+        cursor.mergeCharFormat(format)
+        self.richText.mergeCurrentCharFormat(format)
 
-            if line == aranan:
-
-                count = count+1
-                QMessageBox.about(self, "bul", str(
-                    temp)+".sıradaki kelime aradığınız kelimedir")
-        QMessageBox.about(self, "bul", str(count)+" adet bulundu ")
-    
     def addImage_clicked(self):
         imagePath = QFileDialog.getOpenFileName(self, 'Open file')
         document = self.richText.document()
@@ -248,16 +263,21 @@ class Form(QWidget):
 
     def opentext_clicked(self):
 
-        filename = QFileDialog.getOpenFileName(self, 'Open File')
+        try:
 
-        if filename[0]:
+            filename = QFileDialog.getOpenFileName(self, 'Open File')
 
-            f = open(filename[0], 'r')
+            if filename[0]:
 
-            with f:
+                f = open(filename[0], 'r')
 
-               data = f.read()
-               self.richText.setText(data)
+                with f:
+
+                   data = f.read()
+                   self.richText.setText(data)
+        except:
+            QMessageBox.about(self, "Onu nasıl açayım be güzel kardeşim",
+                              "Kötü şeyler oldu olur arada öyle şeyler takma eğer sorun devam ederse bildir")
 
     def save_clicked(self):
         try:
