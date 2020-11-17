@@ -211,7 +211,7 @@ class Form(QWidget):
 
         aranan, onay = QInputDialog.getText(
             self, " aranan kelimeyi giriniz:", "kelime bul")
-        
+
         if not aranan:
             return
         col = QColorDialog.getColor(self.richText.textColor(), self)
@@ -220,23 +220,23 @@ class Form(QWidget):
         fmt = QTextCharFormat()
         fmt.setForeground(col)
         print("\nfmt.setForeground(col)", col)
-        fmt.setFontPointSize(14)     
+        fmt.setFontPointSize(14)
 
         self.richText.moveCursor(QTextCursor.Start)
 
         self.countWords = 0
-        while self.richText.find(aranan, QTextDocument.FindWholeWords):      # Find whole words
+        # Find whole words
+        while self.richText.find(aranan, QTextDocument.FindWholeWords):
             self.mergeFormatOnWordOrSelection(fmt)
             self.countWords += 1
 
-        QMessageBox.information(self, 
-            "Information", 
-            
-             "word->`{text}` {countWords}` adet bulundu".format(text=aranan, countWords=self.countWords)
-        )
-        
+        QMessageBox.information(self,
+                                "Information",
 
-        
+                                "word->`{text}` {countWords}` adet bulundu".format(
+                                    text=aranan, countWords=self.countWords)
+                                )
+
     def mergeFormatOnWordOrSelection(self, format):
         cursor = self.richText.textCursor()
         if not cursor.hasSelection():
